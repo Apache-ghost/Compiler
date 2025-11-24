@@ -1,7 +1,12 @@
+# -*- coding: utf-8 -*-
 """
-Yaoundé Urban Communication Syntactic Analyzer
-Grammar definitions and parser for multilingual expressions
+Yaounde Urban Communication Syntactic Analyzer
+Interactive grammar-based parser for multilingual expressions
 Supports LL(1) parsing with FIRST/FOLLOW set computation
+
+Usage:
+    python syntactic_analyzer.py        # Interactive mode
+    python syntactic_analyzer.py --demo # Demo mode
 """
 
 from typing import List, Tuple, Dict, Set
@@ -285,8 +290,95 @@ class YaoundeParser:
 
 # ==================== TESTING ====================
 
-def test_parser():
-    """Test the syntactic analyzer with sample expressions"""
+def interactive_parser():
+    """Interactive syntactic analyzer - prompts user for input"""
+    from lexical_analyzer import YaoundeLexer
+    
+    lexer = YaoundeLexer()
+    grammar = YaoundeGrammar()
+    parser = YaoundeParser(grammar)
+    
+    print("🌳 YAOUNDE INTERACTIVE SYNTACTIC ANALYZER")
+    print("Grammar-based parser for multilingual expressions")
+    print("=" * 55)
+    print("\nExample expressions to try:")
+    print("  • bros drop me for Total")
+    print("  • give me 500 francs")
+    print("  • je wanda how far ?")
+    print("  • masa network dey bad")
+    print("\nType 'quit', 'exit', or 'grammar' (to see rules)\n")
+    
+    while True:
+        try:
+            expression = input("🇨🇲 Enter expression to parse: ").strip()
+            
+            if expression.lower() in ['quit', 'exit', 'q']:
+                print("\n👋 Parser shutting down! Goodbye!")
+                break
+            
+            if expression.lower() == 'grammar':
+                show_grammar_info(grammar)
+                continue
+            
+            if not expression:
+                print("❌ Please enter an expression\n")
+                continue
+            
+            print(f"\n📝 Parsing: '{expression}'")
+            
+            # Tokenize first
+            tokens = lexer.tokenize(expression)
+            print("\n🔤 Tokens generated:")
+            for token in tokens:
+                if token.type != TokenType.EOF:
+                    print(f"  {token}")
+            
+            # Parse
+            accepted, message, parse_tree = parser.parse(tokens)
+            
+            print(f"\n🎯 Parse Result: {message}")
+            
+            if parse_tree:
+                print("\n🌳 Parse Steps:")
+                for i, step in enumerate(parse_tree[:8], 1):  # Show first 8 steps
+                    print(f"  {i}. {step}")
+                if len(parse_tree) > 8:
+                    print(f"  ... and {len(parse_tree) - 8} more steps")
+            
+            print("\n" + "-" * 50)
+            
+        except KeyboardInterrupt:
+            print("\n\n👋 Interrupted! Parser stopped!")
+            break
+        except Exception as e:
+            print(f"\n❌ Parse Error: {e}\n")
+
+def show_grammar_info(grammar):
+    """Display grammar information"""
+    print("\n📚 GRAMMAR INFORMATION")
+    print("=" * 25)
+    
+    print("\n🔄 Main Statement Types:")
+    for rule in grammar.rules['Statement']:
+        print(f"  Statement → {' '.join(rule)}")
+    
+    print("\n🔤 Sample FIRST Sets:")
+    key_sets = ['Statement', 'Greeting', 'Request', 'Question']
+    for non_terminal in key_sets:
+        if non_terminal in grammar.first_sets:
+            first_set = grammar.first_sets[non_terminal]
+            print(f"  FIRST({non_terminal}) = {', '.join(sorted(list(first_set))[:4])}...")
+    
+    print("\n⚙️ Grammar supports:")
+    print("  • Greetings (bros, masa, chief)")
+    print("  • Transport requests (drop me for...)")
+    print("  • Money negotiations (give me X francs)")
+    print("  • Questions (wetin?, c'est comment?)")
+    print("  • Complaints (network dey bad)")
+    print()
+
+def demo_parser():
+    """Run predefined demo (for testing purposes)"""
     from lexical_analyzer import YaoundeLexer
     
     lexer = YaoundeLexer()
@@ -295,13 +387,11 @@ def test_parser():
     
     test_cases = [
         "bros drop me for Total",
-        "masa network dey bad", 
         "give me 500 francs",
-        "je wanda how far ?",
-        "walahi light don comot"
+        "masa network dey bad"
     ]
     
-    print("🌳 YAOUNDÉ SYNTACTIC ANALYZER TEST")
+    print("🌳 YAOUNDE SYNTACTIC ANALYZER DEMO")
     print("=" * 50)
     
     for expression in test_cases:
@@ -310,11 +400,6 @@ def test_parser():
         accepted, message, parse_tree = parser.parse(tokens)
         
         print(f"🎯 Result: {message}")
-        print("🌳 Parse Steps:")
-        for step in parse_tree[:5]:  # Show first 5 steps
-            print(f"  {step}")
-        if len(parse_tree) > 5:
-            print(f"  ... and {len(parse_tree) - 5} more steps")
 
 def test_grammar():
     """Test grammar structure"""
@@ -332,6 +417,10 @@ def test_grammar():
         print(f"  FOLLOW({non_terminal}) = {grammar.follow_sets[non_terminal]}")
 
 if __name__ == "__main__":
-    test_parser()
-    print("\n" + "=" * 50)
-    test_grammar()
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "--demo":
+        demo_parser()
+        print("\n" + "=" * 50)
+        test_grammar()
+    else:
+        interactive_parser()

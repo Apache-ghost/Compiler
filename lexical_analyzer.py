@@ -1,7 +1,12 @@
+# -*- coding: utf-8 -*-
 """
-Yaoundé Urban Communication Lexical Analyzer
-Tokenizes multilingual Cameroonian street language
+Yaounde Urban Communication Lexical Analyzer
+Interactive tokenizer for multilingual Cameroonian street language
 Supports: English, French, Pidgin, Fulfulde, Ewondo, and Franc-Anglais
+
+Usage:
+    python lexical_analyzer.py        # Interactive mode
+    python lexical_analyzer.py --demo # Demo mode
 """
 
 import re
@@ -209,19 +214,65 @@ class YaoundeLexer:
 
 # ==================== TESTING ====================
 
-def test_lexer():
-    """Test the lexical analyzer with sample expressions"""
+def interactive_lexer():
+    """Interactive lexical analyzer - prompts user for input"""
+    lexer = YaoundeLexer()
+    
+    print("🔤 YAOUNDE INTERACTIVE LEXICAL ANALYZER")
+    print("Supports: English • French • Pidgin • Fulfulde • Ewondo • Franc-Anglais")
+    print("=" * 60)
+    print("\nExamples to try:")
+    print("  • bros drop me for Total")
+    print("  • masa network dey bad today")
+    print("  • give me 500 francs")
+    print("  • je wanda how far ?")
+    print("  • walahi light don comot direct")
+    print("\nType 'quit' or 'exit' to stop\n")
+    
+    while True:
+        try:
+            expression = input("🇨🇲 Enter Yaoundé expression: ").strip()
+            
+            if expression.lower() in ['quit', 'exit', 'q']:
+                print("\n👋 Au revoir! Goodbye! See you later!")
+                break
+            
+            if not expression:
+                print("❌ Please enter an expression\n")
+                continue
+            
+            print(f"\n📝 Analyzing: '{expression}'")
+            tokens = lexer.tokenize(expression)
+            
+            print("\n🔤 Tokens:")
+            for token in tokens:
+                if token.type != TokenType.EOF:
+                    print(f"  {token}")
+            
+            frequency = lexer.analyze_frequency(tokens)
+            print("\n📊 Token Frequency:")
+            for token_info, count in sorted(frequency.items()):
+                print(f"  {count}x {token_info}")
+            
+            print("\n" + "-" * 50)
+            
+        except KeyboardInterrupt:
+            print("\n\n👋 Interrupted! Goodbye!")
+            break
+        except Exception as e:
+            print(f"\n❌ Error: {e}\n")
+
+def demo_lexer():
+    """Run predefined demo (for testing purposes)"""
     lexer = YaoundeLexer()
     
     test_cases = [
         "bros drop me for Total",
         "masa network dey bad today", 
-        "give me 500 francs",
-        "je wanda how far ?",
-        "walahi light don comot direct"
+        "give me 500 francs"
     ]
     
-    print("🔤 YAOUNDÉ LEXICAL ANALYZER TEST")
+    print("🔤 YAOUNDE LEXICAL ANALYZER DEMO")
     print("=" * 50)
     
     for expression in test_cases:
@@ -232,11 +283,10 @@ def test_lexer():
         for token in tokens:
             if token.type != TokenType.EOF:
                 print(f"  {token}")
-        
-        frequency = lexer.analyze_frequency(tokens)
-        print("📊 Frequency:")
-        for token_info, count in frequency.items():
-            print(f"  {token_info}: {count}")
 
 if __name__ == "__main__":
-    test_lexer()
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "--demo":
+        demo_lexer()
+    else:
+        interactive_lexer()
