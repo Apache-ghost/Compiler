@@ -82,7 +82,8 @@ class YaoundeLexer:
     
     def __init__(self):
         # Define token patterns with regex
-        self.patterns = [
+        # Compile regex patterns once for efficiency
+        patterns_to_compile = [
             # Numbers (must come before general words)
             (TokenType.NUMBER, r'\d+k|\d+\.\d+|\d+'),
             
@@ -164,6 +165,7 @@ class YaoundeLexer:
             (TokenType.COMMA, r','),
             (TokenType.PERIOD, r'\.'),
         ]
+        self.patterns = [(token_type, re.compile(pattern, re.IGNORECASE)) for token_type, pattern in patterns_to_compile]
     
     def tokenize(self, text: str) -> List[Token]:
         """Convert text into tokens"""
@@ -180,8 +182,7 @@ class YaoundeLexer:
             # Try to match each pattern
             matched = False
             for token_type, pattern in self.patterns:
-                regex = re.compile(pattern, re.IGNORECASE)
-                match = regex.match(text, position)
+                match = pattern.match(text, position)
                 
                 if match:
                     value = match.group(0)

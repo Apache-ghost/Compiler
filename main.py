@@ -111,74 +111,55 @@ def interactive_analyzer():
         except Exception as e:
             print(f"\n❌ Error: {e}")
 
+def _interactive_loop(prompt: str, callback):
+    """Helper function to run an interactive input loop."""
+    while True:
+        expression = input(prompt).strip()
+        if expression.lower() == 'back':
+            break
+        if not expression:
+            continue
+        callback(expression)
+
 def full_analysis_mode(analyzer):
     """Interactive full analysis mode"""
     print("\n🔍 FULL ANALYSIS MODE")
     print("Enter expressions for complete lexical + syntactic analysis")
     print("Type 'back' to return to main menu\n")
-    
-    while True:
-        expression = input("🇨🇲 Expression: ").strip()
-        
-        if expression.lower() == 'back':
-            break
-        
-        if not expression:
-            continue
-            
+    def analyze_and_print(expression):
         result = analyzer.analyze(expression)
         analyzer.print_analysis(result)
+    _interactive_loop("🇨🇲 Expression: ", analyze_and_print)
 
 def lexical_only_mode(analyzer):
     """Interactive lexical-only mode"""
     print("\n🔤 LEXICAL ANALYSIS MODE")
     print("Tokenization only (no syntax checking)")
     print("Type 'back' to return to main menu\n")
-    
-    while True:
-        expression = input("🇨🇲 Expression to tokenize: ").strip()
-        
-        if expression.lower() == 'back':
-            break
-            
-        if not expression:
-            continue
-            
+    def tokenize_and_print(expression):
         tokens = analyzer.lexer.tokenize(expression)
         frequency = analyzer.lexer.analyze_frequency(tokens)
-        
         print(f"\n📝 Original: {expression}")
         print("\n🔤 TOKENS:")
         for token in tokens:
             if token.type != TokenType.EOF:
                 print(f"  {token}")
-        
         print("\n📊 FREQUENCY:")
         for token, count in sorted(frequency.items()):
             print(f"  {count}x {token}")
         print()
+    _interactive_loop("🇨🇲 Expression to tokenize: ", tokenize_and_print)
 
 def syntactic_only_mode(analyzer):
     """Interactive syntax-only mode"""
     print("\n🌳 SYNTACTIC ANALYSIS MODE") 
     print("Grammar parsing only (assumes valid tokens)")
     print("Type 'back' to return to main menu\n")
-    
-    while True:
-        expression = input("🇨🇲 Expression to parse: ").strip()
-        
-        if expression.lower() == 'back':
-            break
-            
-        if not expression:
-            continue
-            
+    def parse_and_print(expression):
         tokens = analyzer.lexer.tokenize(expression)
         accepted, message, parse_tree = analyzer.parser.parse(tokens)
-        
         print(f"\n📝 Original: {expression}")
         print(f"\n🎯 {message}")
-        
         if parse_tree:
             print("\n🌳 PARSE TRACE:")
             for step in parse_tree[:8]:
@@ -186,6 +167,7 @@ def syntactic_only_mode(analyzer):
             if len(parse_tree) > 8:
                 print(f"  ... and {len(parse_tree) - 8} more steps")
         print()
+    _interactive_loop("🇨🇲 Expression to parse: ", parse_and_print)
 
 def show_grammar_info(analyzer):
     """Show grammar information"""
@@ -211,21 +193,81 @@ def show_grammar_info(analyzer):
 
 def run_demo(analyzer):
     """Run demo with predefined examples"""
+
     test_cases = [
+        # Original five demo cases
         "bros drop me for Total",
         "masa network dey bad today",
         "give me 500 francs",
         "je wanda how far ?",
         "walahi light don comot direct"
     ]
-    
+
+    franc_anglais_cases = [
+        "Bros, drop me for carrefour.",
+        "Je go campus now, you dey come?",
+        "Massa, give me 200 francs change.",
+        "You fit show me ICT junction?",
+        "Je wanda how far?",
+        "Bros, you sabi the road for Total?",
+        "I dey go marché, you fit carry me?",
+        "C’est comment, network dey bad today.",
+        "Bros, na so life dey for quartier.",
+        "Je wan chop ndolé, you get?",
+        "You fit wait small, I dey come.",
+        "Bros, na taxi or clando?",
+        "Je go school, drop me for gate.",
+        "You fit give me airtime?",
+        "Bros, na bendskin dey pass here?",
+        "Je wan buy fufu, where e dey?",
+        "Bros, you sabi patron for this place?",
+        "Je wan go campus, how much?",
+        "Bros, na moto or taxi?",
+        "Je wan call my friend, phone no dey.",
+        "Bros, you fit help me with kop?",
+        "Je wan go ICT, you dey go?",
+        "Bros, na bendskin-man dey for corner.",
+        "Je wan see my guy for marché.",
+        "Bros, na so e dey for Yaoundé.",
+        "Je wan drop for carrefour, how far?",
+        "Bros, na garri you dey chop?",
+        "Je wan go Total, you fit carry me?",
+        "Bros, na so e dey, no wahala.",
+        "Je wan buy airtime, you get?",
+        "Bros, na campus you dey go?",
+        "Je wan see my patron, you fit show me?",
+        "Bros, na so e dey, ehn!",
+        "Je wan go ICT, you fit drop me?",
+        "Bros, na taxi dey pass here?",
+        "Je wan buy eru, where e dey?",
+        "Bros, na so e dey for quartier.",
+        "Je wan go marché, you fit carry me?",
+        "Bros, na bendskin dey for road?",
+        "Je wan call my guy, phone dey bad.",
+        "Bros, na so e dey, garrr!",
+        "Je wan buy ndolé, you get?",
+        "Bros, na campus you dey go?",
+        "Je wan see my friend for Total.",
+        "Bros, na so e dey, weh!",
+        "Je wan go carrefour, you fit drop me?",
+        "Bros, na taxi or moto?",
+        "Je wan buy airtime, you fit help me?",
+        "Bros, na so e dey, ekiee!",
+        "Je wan go marché, you dey go?"
+    ]
+
     print("\n🎬 RUNNING DEMO WITH SAMPLE EXPRESSIONS")
     print("=" * 45)
-    
+    print("\n--- Original 5 Test Cases ---\n")
     for expression in test_cases:
         result = analyzer.analyze(expression)
         analyzer.print_analysis(result)
-    
+
+    print("\n--- Franc-Anglais Test Block (50 sentences) ---\n")
+    for expression in franc_anglais_cases:
+        result = analyzer.analyze(expression)
+        analyzer.print_analysis(result)
+
     input("\n⏸️ Press Enter to continue...")
 
 if __name__ == "__main__":

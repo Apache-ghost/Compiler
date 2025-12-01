@@ -192,6 +192,42 @@ class YaoundeParser:
         self.parse_tree = []
     
     def parse(self, tokens: List[Token]) -> Tuple[bool, str, List[str]]:
+        """Parse token stream using the LL(1) table"""
+        self.tokens = [t for t in tokens if t.type != TokenType.EOF] + [Token(TokenType.EOF, '$', -1)]
+        self.position = 0
+        self.parse_tree = []
+        
+        stack = ['$', 'S'] # Start with EOF and the start symbol 'S'
+        
+        while len(stack) > 0:
+            top_of_stack = stack[-1]
+            current_token = self.current_token()
+            self.parse_tree.append(f"Stack: {stack}, Input: {current_token.value}")
+
+            if top_of_stack == current_token.type.name:
+                stack.pop()
+                self.consume()
+            elif top_of_stack in self.grammar.rules: # It's a non-terminal
+                table_entry = self.grammar.parsing_table.get((top_of_stack, current_token.type.name))
+                if table_entry:
+                    stack.pop()
+                    # Push production rule onto stack in reverse order
+                    if table_entry[0] != 'ε': # Handle epsilon productions if you have them
+                        stack.extend(reversed(table_entry))
+                    self.parse_tree.append(f"Action: {top_of_stack} -> {' '.join(table_entry)}")
+                else:
+                    msg = f"Unexpected token {current_token.type.name} for non-terminal {top_of_stack}"
+                    return False, f"✗ REJECTED - {msg}", self.parse_tree
+            else:
+                msg = f"Invalid symbol on stack or input mismatch. Stack top: {top_of_stack}"
+                return False, f"✗ REJECTED - {msg}", self.parse_tree
+
+        if self.current_token().type == TokenType.EOF and len(stack) == 0:
+            return True, "✓ ACCEPTED - Valid Yaoundé expression", self.parse_tree
+        else:
+            return False, "✗ REJECTED - Incomplete parse or stack not empty", self.parse_tree
+
+    def parse(self, tokens: List[Token]) -> Tuple[bool, str, List[str]]:
         """Parse token stream"""
         self.tokens = tokens
         self.position = 0
@@ -287,6 +323,13 @@ class YaoundeParser:
         if self.current_token().type == TokenType.NOUN_MONEY:
             self.consume(TokenType.NOUN_MONEY)
         return True
+    
+    def consume(self) -> Token:
+        """Consume and return current token, advancing the position."""
+        if self.position < len(self.tokens):
+            self.position += 1
+        return self.tokens[self.position - 1]
+
 
 # ==================== TESTING ====================
 
