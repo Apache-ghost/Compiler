@@ -272,8 +272,41 @@ def run_demo(analyzer):
 
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) > 1 and sys.argv[1] == "--demo":
-        analyzer = YaoundeAnalyzer()
-        run_demo(analyzer)
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "--demo":
+            analyzer = YaoundeAnalyzer()
+            run_demo(analyzer)
+        elif sys.argv[1] == "--gui":
+            try:
+                from gui_interface import main as gui_main
+                print("🚀 Launching GUI interface...")
+                gui_main()
+            except ImportError:
+                print("❌ GUI not available. Using command-line interface instead.")
+                interactive_analyzer()
+        else:
+            interactive_analyzer()
     else:
-        interactive_analyzer()
+        # Ask user which interface they prefer
+        print("\n🇨🇲 YAOUNDE MULTILINGUAL EXPRESSION ANALYZER")
+        print("=" * 50)
+        print("\nChoose interface:")
+        print("  1. Command-line interface (text-based)")
+        print("  2. Graphical user interface (GUI)")
+        print("\nOr run with flags:")
+        print("  python main.py --gui    # Launch GUI")
+        print("  python main.py --demo  # Run demo")
+        
+        choice = input("\nSelect (1/2) or press Enter for CLI: ").strip()
+        
+        if choice == '2':
+            try:
+                from gui_interface import main as gui_main
+                print("🚀 Launching GUI interface...")
+                gui_main()
+            except ImportError as e:
+                print(f"❌ GUI not available: {e}")
+                print("Falling back to command-line interface...\n")
+                interactive_analyzer()
+        else:
+            interactive_analyzer()

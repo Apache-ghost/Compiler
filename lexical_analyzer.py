@@ -87,8 +87,8 @@ class YaoundeLexer:
             # Numbers (must come before general words)
             (TokenType.NUMBER, r'\d+k|\d+\.\d+|\d+'),
             
-            # Nouns - Places
-            (TokenType.NOUN_PLACE, r'\b(quartier|carrefour|campus|ICT|université?|rond[- ]?point|marché|market|chop|rue|avenue|Total|station)\b'),
+            # Nouns - Places (expanded)
+            (TokenType.NOUN_PLACE, r'\b(quartier|carrefour|campus|ICT|université?|rond[- ]?point|marché|market|chop|rue|avenue|Total|station|école|school|lycée|collège|fac|faculté)\b'),
             
             # Nouns - People
             (TokenType.NOUN_PERSON, r'\b(moto[- ]?guy|bendskin[- ]?man|patron|boss|driver|mbere|sauveteur|gars|ndjangui|combi)\b'),
@@ -111,8 +111,8 @@ class YaoundeLexer:
             # Verbs - Give
             (TokenType.VERB_GIVE, r'\b(give|send|dash|donner|envoy[eé]|pay|di[eé])\b'),
             
-            # Verbs - Be
-            (TokenType.VERB_BE, r'\b(be|dey|[eé]tre|sef|stay|tann?|trouve)\b'),
+            # Verbs - Be (expanded French forms)
+            (TokenType.VERB_BE, r'\b(be|dey|[eé]tre|est|sont|es|sommes|êtes|sef|stay|tann?|trouve|sont|était|étaient)\b'),
             
             # Verbs - General
             (TokenType.VERB_GENERAL, r'\b(do|see|hear|tok|parler|dire|mek|make|know|savoir|take|wan|want|need|get|avoir|sor)\b'),
@@ -120,8 +120,8 @@ class YaoundeLexer:
             # Pidgin Phrases
             (TokenType.PIDGIN_PHRASE, r'\b(na so|no be|i don|you don|we don|no dey|weti|wetin|how far|how no|man no|I beg|abeg|my broda|yi mass[aé])\b'),
             
-            # French Phrases
-            (TokenType.FRENCH_PHRASE, r'\b(c\'?est comment|ça va|tu vois|on dit|je dis|mon frère|frèrot|même|là[- ]?bas|c\'?est bon|c\'?est ca|pourquoi|tu fais comment|on va faire comment|tu connais|je wanda)\b'),
+            # French Phrases (expanded)
+            (TokenType.FRENCH_PHRASE, r'\b(c\'?est comment|ça va|tu vois|on dit|je dis|mon frère|frèrot|même|là[- ]?bas|c\'?est bon|c\'?est ca|pourquoi|tu fais comment|on va faire comment|tu connais|je wanda|c\'?est mal|c\'?est bien|comment ça va|qu\'?est[- ]?ce que)\b'),
             
             # Ewondo Phrases
             (TokenType.EWONDO_PHRASE, r'\b(a ye moan|mbokesso|a sala|ndolo|yaa|me dzo|atè|akiba)\b'),
@@ -135,11 +135,11 @@ class YaoundeLexer:
             # Slang - Emphasis
             (TokenType.SLANG_EMPHASIS, r'\b(direct|serious|sérieux|correct|zéro[- ]?zéro|même pas|trop|vraiment|total|carrément|sharp|tight|bad)\b'),
             
-            # Slang - Response
-            (TokenType.SLANG_RESPONSE, r'\b(masa|mass|bros|brother|chief|sango|paddy|padi|guy|gars|nnem)\b'),
+            # Slang - Response (expanded)
+            (TokenType.SLANG_RESPONSE, r'\b(masa|mass|bros|brother|chief|sango|paddy|padi|guy|gars|nnem|frère|frèrot|mon frère|mon pote|pote)\b'),
             
-            # Adjectives - Quality
-            (TokenType.ADJ_QUALITY, r'\b(bon|good|nye|nice|correct|bad|mauvais|beau|fine|better|bonne?|chaud|cool|nayo)\b'),
+            # Adjectives - Quality (expanded French forms)
+            (TokenType.ADJ_QUALITY, r'\b(bon|good|nye|nice|correct|bad|mauvais|mal|bien|beau|belle|fine|better|bonne?|chaud|cool|nayo|meilleur|pire|super|génial|nul)\b'),
             
             # Adjectives - Quantity
             (TokenType.ADJ_QUANTITY, r'\b(plenty|small|petit|grand|big|beaucoup|peu|trop|many|some|all|tout)\b'),

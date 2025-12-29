@@ -1,0 +1,84 @@
+# Yaoundé Urban Communication - Collected Real-World Data
+# Collected from: Taxis, Markets, University, Bendskins, Roadside Businesses
+# Format: One expression per line, with comments for context
+
+# ==================== TAXI AND COMMUTING ISSUES ====================
+bros drop me for Total
+je go campus now, you dey come?
+Bros, you sabi the road for Total?
+Je wan go ICT, you fit drop me?
+Bros, na taxi or clando?
+Je go school, drop me for gate
+Bros, na bendskin dey pass here?
+Je wan go carrefour, you fit carry me?
+
+# ==================== POOR INTERNET CONNECTIVITY ====================
+masa network dey bad today
+Je wan call my friend, phone no dey
+Bros, you fit give me airtime?
+Je wan call my guy, phone dey bad
+network dey zero-zero today
+C'est comment, network dey bad today
+
+# ==================== LIMITED ELECTRICITY SUPPLY ====================
+walahi light don comot direct
+light dey comot for quartier
+Je wanda why light no dey
+Bros, na so light dey for Yaoundé
+electricity don finish again
+
+# ==================== MARKET BARGAINING ====================
+Je wan buy fufu, where e dey?
+Je wan chop ndolé, you get?
+Bros, na garri you dey chop?
+Je wan buy eru, where e dey?
+give me 500 francs
+Massa, give me 200 francs change
+Je wan buy airtime, you get?
+
+# ==================== RAINY SEASON STRUGGLES ====================
+rain don fall plenty today
+water dey plenty for road
+Je wanda how we go pass?
+Bros, na so e dey for rainy season
+
+# ==================== FUEL SCARCITY ====================
+fuel don finish for station
+Bros, na so fuel dey scarce
+Je wanda where fuel dey?
+
+# ==================== ROADSIDE BUSINESS INTERACTIONS ====================
+Bros, you sabi patron for this place?
+Je wan see my guy for marché
+Bros, na bendskin-man dey for corner
+Je wan see my patron, you fit show me?
+
+# ==================== BENDSKIN COMMUNICATION ====================
+Bros, na moto or taxi?
+Bros, na bendskin dey for road?
+Je wan go Total, you fit carry me?
+Bros, na so e dey, no wahala
+
+# ==================== SECURITY ANNOUNCEMENTS OR CHECKPOINTS ====================
+Bros, you fit show me ICT junction?
+Je wanda where checkpoint dey?
+Bros, na so security dey tight
+
+# ==================== LIFE AT ICT UNIVERSITY ====================
+Je go campus now, you dey come?
+Bros, na campus you dey go?
+Je wan go ICT, you dey go?
+Bros, na so life dey for quartier
+Je wan see my friend for Total
+
+# ==================== GENERAL FRANC-ANGLAIS EXPRESSIONS ====================
+Je wanda how far?
+Bros, na so e dey, ehn!
+Je wan drop for carrefour, how far?
+Bros, na so e dey, weh!
+Je wan go marché, you fit carry me?
+Bros, na so e dey, garrr!
+Je wan buy ndolé, you get?
+Bros, na so e dey, ekiee!
+Je wan go marché, you dey go?
+

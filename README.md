@@ -84,6 +84,23 @@ compiler/
 ```
 
 ## 🚀 Usage
+
+### Graphical User Interface (Recommended for Presentations)
+```bash
+python gui_interface.py
+# or
+python main.py --gui
+```
+
+The GUI provides:
+- 📝 Interactive expression input
+- 🔤 Real-time tokenization display
+- 🌳 Parse result visualization
+- 📊 Statistics and frequency analysis
+- 📚 Grammar information
+- 💡 Example expressions to try
+
+### Command-Line Interface
 - **`lexical_analyzer.py`**: Contains `YaoundeLexer`, which uses regular expressions to convert raw text into a stream of `Token`s.
 - **`syntactic_analyzer.py`**: Contains `YaoundeGrammar` (which defines the language's structure) and `YaoundeParser` (which checks if the tokens form a valid sentence).
 - **`main.py`**: The user-facing application. It orchestrates the lexer and parser and provides a menu for users to interact with the system.
