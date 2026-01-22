@@ -114,11 +114,11 @@ class YaoundeLexer:
             # Verbs - Be (expanded French forms)
             (TokenType.VERB_BE, r'\b(be|dey|[eé]tre|est|sont|es|sommes|êtes|sef|stay|tann?|trouve|sont|était|étaient)\b'),
             
-            # Verbs - General
-            (TokenType.VERB_GENERAL, r'\b(do|see|hear|tok|parler|dire|mek|make|know|savoir|take|wan|want|need|get|avoir|sor)\b'),
+            # Verbs - General (expanded to include "buy", "call")
+            (TokenType.VERB_GENERAL, r'\b(do|see|hear|tok|parler|dire|mek|make|know|savoir|sabi|take|want|need|get|avoir|sor|buy|acheter|call|appeler)\b'),
             
-            # Pidgin Phrases
-            (TokenType.PIDGIN_PHRASE, r'\b(na so|no be|i don|you don|we don|no dey|weti|wetin|how far|how no|man no|I beg|abeg|my broda|yi mass[aé])\b'),
+            # Pidgin Phrases (expanded to include "wan", "fit", "sabi", "dey", "comot", "where")
+            (TokenType.PIDGIN_PHRASE, r'\b(na so|no be|i don|you don|we don|no dey|weti|wetin|how far|how no|man no|I beg|abeg|my broda|yi mass[aé]|wan|fit|sabi|dey|comot|where|waka|e dey)\b'),
             
             # French Phrases (expanded)
             (TokenType.FRENCH_PHRASE, r'\b(c\'?est comment|ça va|tu vois|on dit|je dis|mon frère|frèrot|même|là[- ]?bas|c\'?est bon|c\'?est ca|pourquoi|tu fais comment|on va faire comment|tu connais|je wanda|c\'?est mal|c\'?est bien|comment ça va|qu\'?est[- ]?ce que)\b'),

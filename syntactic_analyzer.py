@@ -286,6 +286,19 @@ class YaoundeParser:
                 remaining = [t for t in self.tokens[self.position:-1] 
                             if t.type not in [TokenType.COMMA, TokenType.PERIOD, TokenType.EXCLAMATION, 
                                             TokenType.SLANG_EXCLAIM, TokenType.SLANG_RESPONSE, TokenType.QUESTION]]
+                
+                # Handle commas - might be separating multiple statements (e.g., "Je go campus now, you dey come?")
+                if any(t.type == TokenType.COMMA for t in self.tokens[self.position:-1]):
+                    # Try to parse what comes after comma as another statement
+                    comma_pos = next((i for i, t in enumerate(self.tokens[self.position:-1]) if t.type == TokenType.COMMA), None)
+                    if comma_pos is not None:
+                        # Skip to after comma and try parsing again
+                        saved_pos = self.position
+                        self.position += comma_pos + 1  # Skip comma
+                        if self.parse_statement():
+                            return True, "✓ ACCEPTED - Valid Yaoundé expression (multiple statements)", self.parse_tree
+                        self.position = saved_pos
+                
                 # Allow 1-2 short unknown tokens at the end (likely slang/typos)
                 unknown_at_end = [t for t in remaining if t.type == TokenType.UNKNOWN and len(t.value) <= 6]
                 if len(unknown_at_end) <= 2 and len(remaining) == len(unknown_at_end):
@@ -331,7 +344,18 @@ class YaoundeParser:
         # Grammar: Statement → Greeting | Request | Question | Complaint | Negotiation
         
         # Try Greeting first (starts with SLANG_RESPONSE)
+        # But also check if it's a Question starting with SLANG_RESPONSE
         if token.type == TokenType.SLANG_RESPONSE:
+            # Check if it's a question (has QUESTION mark later)
+            has_question = any(t.type == TokenType.QUESTION for t in self.tokens[self.position:-1])
+            
+            if has_question:
+                # It's a question starting with SLANG_RESPONSE
+                saved_pos = self.position
+                if self.parse_question_with_slang_prefix():
+                    return True
+                self.position = saved_pos
+            
             # Check if it's just a greeting or greeting + something else
             saved_pos = self.position
             if self.parse_greeting():
@@ -340,7 +364,8 @@ class YaoundeParser:
                     next_token = self.current_token()
                     # If next token starts a new statement type, parse it
                     if next_token.type in [TokenType.VERB_GIVE, TokenType.VERB_MOVEMENT, 
-                                          TokenType.NOUN_TECH, TokenType.NOUN_MONEY, TokenType.NOUN_TRANSPORT]:
+                                          TokenType.NOUN_TECH, TokenType.NOUN_MONEY, TokenType.NOUN_TRANSPORT,
+                                          TokenType.PIDGIN_PHRASE, TokenType.FRENCH_PHRASE, TokenType.PRONOUN]:
                         # Greeting was just a prefix, continue parsing
                         return self.parse_statement()  # Recursively parse the rest
                     elif next_token.type in [TokenType.TIME, TokenType.VERB_BE]:
@@ -349,13 +374,38 @@ class YaoundeParser:
                 return True
             self.position = saved_pos  # Reset if greeting parse failed
         
-        # Try Request (starts with VERB_GIVE or VERB_MOVEMENT)
+        # Try Request (starts with VERB_GIVE, VERB_MOVEMENT, PIDGIN_PHRASE, FRENCH_PHRASE, or PRONOUN)
         if token.type in [TokenType.VERB_GIVE, TokenType.VERB_MOVEMENT]:
             return self.parse_request()
         
-        # Try Question (starts with PIDGIN_PHRASE or FRENCH_PHRASE)
+        # Try Request with Pidgin/French prefix (e.g., "Je wan go", "Je go")
         if token.type in [TokenType.PIDGIN_PHRASE, TokenType.FRENCH_PHRASE]:
+            # Check if it's followed by VERB_MOVEMENT, VERB_GIVE, or VERB_GENERAL (it's a request)
+            if self.position + 1 < len(self.tokens) - 1:
+                next_token = self.tokens[self.position + 1]
+                if next_token.type in [TokenType.VERB_MOVEMENT, TokenType.VERB_GIVE, TokenType.VERB_GENERAL]:
+                    return self.parse_request_with_prefix()
+            # Check if it's a question (has QUESTION mark)
+            has_question = any(t.type == TokenType.QUESTION for t in self.tokens[self.position:-1])
+            if has_question:
+                return self.parse_question()
+            # Otherwise try as request with prefix anyway (flexible for "Je go campus")
+            saved_pos = self.position
+            if self.parse_request_with_prefix():
+                return True
+            self.position = saved_pos
+            # Last resort: try as question
             return self.parse_question()
+        
+        # Try Request with PRONOUN + PIDGIN_PHRASE (e.g., "You fit give me")
+        if token.type == TokenType.PRONOUN:
+            if self.position + 1 < len(self.tokens) - 1:
+                next_token = self.tokens[self.position + 1]
+                if next_token.type == TokenType.PIDGIN_PHRASE:
+                    saved_pos = self.position
+                    if self.parse_request_with_pronoun_prefix():
+                        return True
+                    self.position = saved_pos
         
         # Try Complaint (starts with NOUN_TECH, NOUN_MONEY, NOUN_TRANSPORT, NOUN_PLACE, or SLANG_EMPHASIS)
         if token.type in [TokenType.NOUN_TECH, TokenType.NOUN_MONEY, TokenType.NOUN_TRANSPORT, TokenType.NOUN_PLACE, TokenType.SLANG_EMPHASIS]:
@@ -416,10 +466,20 @@ class YaoundeParser:
         self.parse_tree.append("Parsing request")
         token = self.current_token()
         
-        if token.type == TokenType.VERB_GIVE:
-            # Grammar: VERB_GIVE PRONOUN TransportRequest | VERB_GIVE PRONOUN NUMBER NOUN_MONEY
+        # Handle SLANG_RESPONSE prefix (e.g., "Massa, give me 200 francs")
+        if token.type == TokenType.SLANG_RESPONSE:
             self.consume()
-            self.parse_tree.append("Matched VERB_GIVE")
+            self.parse_tree.append("Matched SLANG_RESPONSE prefix")
+            # Skip comma if present
+            if self.current_token().type == TokenType.COMMA:
+                self.consume()
+            token = self.current_token()  # Get next token
+        
+        # Also handle VERB_GENERAL (like "buy", "call", "wan") as request verbs
+        if token.type in [TokenType.VERB_GIVE, TokenType.VERB_GENERAL]:
+            verb_type = token.type
+            self.consume()
+            self.parse_tree.append(f"Matched {verb_type.name}")
             
             # PRONOUN is usually present but can be omitted in some contexts
             # Be flexible: allow optional PRONOUN
@@ -447,37 +507,120 @@ class YaoundeParser:
                     self.parse_tree.append("Matched transport request (PREPOSITION NOUN_PLACE)")
                     return True
             
-            # Allow VERB_GIVE with just a noun (e.g., "give airtime")
-            if self.current_token().type in [TokenType.NOUN_TECH, TokenType.NOUN_MONEY, TokenType.NOUN_FOOD]:
+            # Allow VERB_GIVE/VERB_GENERAL with just a noun (e.g., "give airtime", "buy fufu")
+            if self.current_token().type in [TokenType.NOUN_TECH, TokenType.NOUN_MONEY, TokenType.NOUN_FOOD, TokenType.NOUN_PLACE]:
                 self.consume()
                 self.parse_tree.append("Matched request with noun object")
+                # Allow additional noun (e.g., "give me 200 francs change")
+                if self.current_token().type == TokenType.NOUN_MONEY:
+                    self.consume()
+                    self.parse_tree.append("Matched additional noun")
+                # Allow "where e dey?" pattern after noun
+                if self.current_token().type in [TokenType.COMMA, TokenType.QUESTION]:
+                    # Skip comma, allow question
+                    if self.current_token().type == TokenType.COMMA:
+                        self.consume()
+                    return True
                 return True
+            
+            # For VERB_GENERAL, also allow patterns like "call my friend"
+            if verb_type == TokenType.VERB_GENERAL:
+                # Allow PRONOUN + NOUN (e.g., "call my friend", "buy fufu")
+                if self.current_token().type == TokenType.PRONOUN:
+                    self.consume()
+                    if self.current_token().type in [TokenType.NOUN_PERSON, TokenType.NOUN_FOOD, TokenType.NOUN_TECH]:
+                        self.consume()
+                        self.parse_tree.append("Matched VERB_GENERAL PRONOUN NOUN")
+                        return True
             
             return False  # Didn't match any pattern
             
-        elif token.type == TokenType.VERB_MOVEMENT:
+        # Also handle VERB_GENERAL as movement in some contexts (like "go")
+        elif token.type in [TokenType.VERB_MOVEMENT, TokenType.VERB_GENERAL]:
             # Grammar: VERB_MOVEMENT LocationPhrase | VERB_MOVEMENT PRONOUN LocationPhrase | VERB_MOVEMENT PREPOSITION NOUN_PLACE
+            # Also: VERB_MOVEMENT NOUN_PLACE (without preposition, e.g., "go campus")
+            verb_type = token.type
             self.consume()
-            self.parse_tree.append("Matched VERB_MOVEMENT")
+            self.parse_tree.append(f"Matched {verb_type.name}")
             
             # Optional PRONOUN
             if self.current_token().type == TokenType.PRONOUN:
                 self.consume()
                 self.parse_tree.append("Matched optional PRONOUN")
             
-            # Must have PREPOSITION NOUN_PLACE
-            if self.current_token().type != TokenType.PREPOSITION:
-                return False  # Grammar requires PREPOSITION
-            
-            self.consume()
-            if self.current_token().type != TokenType.NOUN_PLACE:
-                return False  # Grammar requires NOUN_PLACE
-            
-            self.consume()
-            self.parse_tree.append("Matched location phrase (PREPOSITION NOUN_PLACE)")
-            return True
+            # Check for PREPOSITION NOUN_PLACE
+            if self.current_token().type == TokenType.PREPOSITION:
+                self.consume()
+                if self.current_token().type == TokenType.NOUN_PLACE:
+                    self.consume()
+                    self.parse_tree.append("Matched location phrase (PREPOSITION NOUN_PLACE)")
+                    return True
+                return False
+            # Also allow VERB_MOVEMENT NOUN_PLACE directly (e.g., "go campus", "Je go campus")
+            elif self.current_token().type == TokenType.NOUN_PLACE:
+                self.consume()
+                self.parse_tree.append("Matched location (NOUN_PLACE)")
+                return True
+            else:
+                return False  # Need either PREPOSITION NOUN_PLACE or NOUN_PLACE
         
         return False
+    
+    def parse_request_with_prefix(self) -> bool:
+        """Parse request with Pidgin/French prefix (e.g., "Je wan go campus")"""
+        self.parse_tree.append("Parsing request with prefix")
+        
+        # Consume prefix (PIDGIN_PHRASE or FRENCH_PHRASE)
+        prefix_type = self.current_token().type
+        self.consume()
+        self.parse_tree.append(f"Matched prefix: {prefix_type.name}")
+        
+        # Now parse as regular request
+        return self.parse_request()
+    
+    def parse_request_with_pronoun_prefix(self) -> bool:
+        """Parse request with PRONOUN + PIDGIN_PHRASE prefix (e.g., "You fit give me")"""
+        self.parse_tree.append("Parsing request with pronoun prefix")
+        
+        # Consume PRONOUN
+        self.consume()
+        self.parse_tree.append("Matched PRONOUN")
+        
+        # Consume PIDGIN_PHRASE (like "fit", "wan")
+        if self.current_token().type == TokenType.PIDGIN_PHRASE:
+            self.consume()
+            self.parse_tree.append("Matched PIDGIN_PHRASE")
+        
+        # Now parse as regular request
+        return self.parse_request()
+    
+    def parse_question_with_slang_prefix(self) -> bool:
+        """Parse question starting with SLANG_RESPONSE (e.g., "Bros, na taxi or clando?")"""
+        self.parse_tree.append("Parsing question with slang prefix")
+        
+        # Consume SLANG_RESPONSE
+        self.consume()
+        self.parse_tree.append("Matched SLANG_RESPONSE prefix")
+        
+        # Skip comma if present
+        if self.current_token().type == TokenType.COMMA:
+            self.consume()
+        
+        # Parse the rest as question content
+        # Allow flexible content until QUESTION mark
+        while self.position < len(self.tokens) - 1:
+            token = self.current_token()
+            if token.type == TokenType.QUESTION:
+                self.consume()
+                self.parse_tree.append("Matched QUESTION mark")
+                return True
+            elif token.type == TokenType.EOF:
+                break
+            else:
+                self.consume()  # Consume question content
+        
+        # If no QUESTION mark found but we have content, still accept
+        return True
     
     def parse_question(self) -> bool:
         """Parse question - flexible pattern matching"""
@@ -506,10 +649,18 @@ class YaoundeParser:
         """Parse complaint - flexible pattern matching for multilingual expressions"""
         self.parse_tree.append("Parsing complaint")
         
-        # Optional emphasis word
-        if self.current_token().type == TokenType.SLANG_EMPHASIS:
+        # Optional FULFULDE_PHRASE or SLANG_EMPHASIS at start (e.g., "walahi light don comot")
+        if self.current_token().type in [TokenType.FULFULDE_PHRASE, TokenType.SLANG_EMPHASIS]:
             self.consume()
-            self.parse_tree.append("Matched optional SLANG_EMPHASIS")
+            self.parse_tree.append(f"Matched optional prefix: {self.tokens[self.position-1].type.name}")
+        
+        # Optional FRENCH_PHRASE at start (e.g., "C'est comment, network dey bad")
+        if self.current_token().type == TokenType.FRENCH_PHRASE:
+            self.consume()
+            self.parse_tree.append("Matched optional FRENCH_PHRASE prefix")
+            # Skip comma if present
+            if self.current_token().type == TokenType.COMMA:
+                self.consume()
         
         # Noun (tech, money, transport, place, etc.)
         if self.current_token().type in [TokenType.NOUN_TECH, TokenType.NOUN_MONEY, TokenType.NOUN_TRANSPORT, TokenType.NOUN_PLACE]:
@@ -518,6 +669,21 @@ class YaoundeParser:
         else:
             # If no noun, might start with verb (e.g., "est mal")
             pass
+        
+        # Handle Pidgin perfective aspect: "don" + verb (e.g., "light don comot")
+        if self.current_token().type == TokenType.PIDGIN_PHRASE:
+            # Check if it's "don" (perfective marker)
+            if self.current_token().value.lower() in ['don', 'done']:
+                self.consume()
+                self.parse_tree.append("Matched PIDGIN_PHRASE (perfective)")
+                # Next should be a verb
+                if self.current_token().type in [TokenType.VERB_MOVEMENT, TokenType.VERB_GENERAL]:
+                    self.consume()
+                    self.parse_tree.append("Matched VERB after perfective")
+                    # Allow adjective after verb (e.g., "don comot direct")
+                    if self.current_token().type in [TokenType.ADJ_QUALITY, TokenType.SLANG_EMPHASIS]:
+                        self.consume()
+                        self.parse_tree.append("Matched optional ADJ after verb")
         
         # Optional verb (can come before or after noun in French)
         if self.current_token().type == TokenType.VERB_BE:
