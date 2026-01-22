@@ -26,6 +26,17 @@ This project implements a complete lexical and syntactic analyzer for the rich m
 - **Franc-Anglais** - French-English code mixing
 ## 📂 Project Structure
 
+### Documentation
+All documentation is organized in the `docs/` directory:
+- **`docs/guides/`** - User guides and how-to documentation
+- **`docs/theory/`** - Educational content and theoretical explanations
+- **`docs/reports/`** - Analysis reports and summaries
+- **`docs/checklists/`** - Project checklists and task lists
+
+See `docs/README.md` for complete documentation index.
+
+### Source Code
+
 ## 🏗️ Architecture
 
 ### Components
@@ -84,6 +95,24 @@ compiler/
 ```
 
 ## 🚀 Usage
+
+### Console Terminal Demo (Perfect for Presentations!)
+```bash
+cd Compiler
+python demo_console.py
+```
+This runs a complete step-by-step demo showing:
+- Lexical Analysis (Tokenization)
+- Language Detection
+- Syntactic Analysis (Parsing)
+- Statistics
+
+**Other console options:**
+```bash
+python demo_console.py interactive  # Interactive mode
+python demo_console.py quick        # Quick results
+python main.py                     # Original menu
+```
 
 ### Graphical User Interface (Recommended for Presentations)
 ```bash

@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yaoundé Multilingual Analyzer | ICT University</title>
+    <meta name="description"
+        content="Professional lexical and syntactic analyzer for Yaoundé urban communication - English, French, Pidgin, Fulfulde, Ewondo, Franc-Anglais">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- jsPDF for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<body class="light-mode">
+    <!-- Animated Background -->
+    <div class="background-animation">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="main-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="ICT University Logo" class="logo">
+                <div class="title-section">
+                    <h1>🇨🇲 Yaoundé Multilingual Analyzer</h1>
+                    <p class="subtitle">English • French • Pidgin • Fulfulde • Ewondo • Franc-Anglais</p>
+                </div>
+            </div>
+            <div class="header-controls">
+                <button id="sound-toggle" class="icon-btn active" title="Toggle Sound Feedback">
+                    <span class="sound-icon">🔊</span>
+                </button>
+                <button id="compare-toggle" class="icon-btn" title="Compare Two Expressions">
+                    <span>📈</span>
+                </button>
+                <button id="theme-toggle" class="icon-btn" title="Toggle Dark Mode">
+                    <span class="theme-icon">🌙</span>
+                </button>
+                <button id="history-toggle" class="icon-btn" title="View History">
+                    <span>📜</span>
+                </button>
+                <button id="shortcuts-btn" class="icon-btn" title="Keyboard Shortcuts">
+                    <span>⌨️</span>
+                </button>
+            </div>
+        </div>
+        <div class="status-bar">
+            <span id="status-text">Ready to analyze</span>
+            <span class="status-dot"></span>
+            <span class="auto-save-indicator" id="auto-save-indicator" title="Auto-save enabled">
+                <span class="save-icon">💾</span>
+                <span class="save-text">Auto-saved</span>
+            </span>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-container">
+        <!-- Left Panel - Input -->
+        <section class="panel input-panel">
+            <div class="panel-header">
+                <h2>📝 Expression Input</h2>
+                <div class="char-counter">
+                    <span id="char-count">0</span> characters
+                </div>
+            </div>
+
+            <div class="input-container">
+                <textarea id="expression-input"
+                    placeholder="Enter a Yaoundé expression to analyze...&#10;&#10;Examples:&#10;• bros drop me for Total&#10;• masa network dey bad today&#10;• give me 500 francs"
+                    spellcheck="false"></textarea>
+                <div class="input-overlay" id="token-overlay"></div>
+                <button class="voice-btn" id="btn-voice" title="Voice Input - Speak clearly. Works best with English/French. For Pidgin/mixed expressions, typing may be more accurate.">
+                    <span class="voice-icon">🎤</span>
+                    <span class="voice-status">Click to speak</span>
+                </button>
+                <div class="voice-help-text" id="voice-help" style="display: none; font-size: 0.85em; color: #666; margin-top: 5px;">
+                    💡 Tip: Speak clearly. For multilingual expressions, typing may be more accurate.
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="btn-analyze" title="Ctrl+Enter">
+                    <span class="btn-icon">🔍</span>
+                    <span class="btn-text">Full Analysis</span>
+                </button>
+                <button class="btn btn-secondary" id="btn-tokenize" title="Ctrl+T">
+                    <span class="btn-icon">🔤</span>
+                    <span class="btn-text">Tokenize</span>
+                </button>
+                <button class="btn btn-secondary" id="btn-parse" title="Ctrl+P">
+                    <span class="btn-icon">🌳</span>
+                    <span class="btn-text">Parse</span>
+                </button>
+            </div>
+
+            <div class="secondary-buttons">
+                <button class="btn btn-outline" id="btn-upload">
+                    <span class="btn-icon">📤</span>
+                    <span class="btn-text">Upload</span>
+                </button>
+                <input type="file" id="file-input" accept=".txt" hidden>
+                <button class="btn btn-outline" id="btn-clear">
+                    <span class="btn-icon">🗑️</span>
+                    <span class="btn-text">Clear</span>
+                </button>
+                <button class="btn btn-outline btn-success" id="btn-export">
+                    <span class="btn-icon">💾</span>
+                    <span class="btn-text">TXT</span>
+                </button>
+                <button class="btn btn-outline btn-pdf" id="btn-export-pdf">
+                    <span class="btn-icon">📥</span>
+                    <span class="btn-text">PDF</span>
+                </button>
+            </div>
+
+            <!-- Languages Detected -->
+            <div class="languages-section" id="languages-section" style="display: none;">
+                <h3>🌍 Languages Detected</h3>
+                <div class="language-tags" id="language-tags"></div>
+            </div>
+
+            <!-- Examples Section -->
+            <div class="examples-section">
+                <div class="examples-header">
+                    <h3>💡 Example Expressions</h3>
+                    <select id="example-category" class="category-select">
+                        <option value="all">All Categories</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Money">Money</option>
+                        <option value="Complaint">Complaints</option>
+                        <option value="Question">Questions</option>
+                        <option value="Food">Food</option>
+                        <option value="Tech">Technology</option>
+                        <option value="Request">Requests</option>
+                    </select>
+                </div>
+                <ul class="examples-list" id="examples-list">
+                    <!-- Populated by JavaScript -->
+                </ul>
+            </div>
+        </section>
+
+        <!-- Right Panel - Results -->
+        <section class="panel results-panel">
+            <div class="panel-header">
+                <h2>🎯 Analysis Results</h2>
+                <div class="result-status" id="result-status">
+                    <span class="status-badge pending">Awaiting input</span>
+                </div>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div class="tabs-nav">
+                <button class="tab-btn active" data-tab="tokens">
+                    <span class="tab-icon">🔤</span>
+                    <span class="tab-text">Tokens</span>
+                    <span class="tab-badge" id="token-count-badge">0</span>
+                </button>
+                <button class="tab-btn" data-tab="parse">
+                    <span class="tab-icon">🌳</span>
+                    <span class="tab-text">Parse Result</span>
+                </button>
+                <button class="tab-btn" data-tab="grammar">
+                    <span class="tab-icon">📚</span>
+                    <span class="tab-text">Grammar</span>
+                </button>
+                <button class="tab-btn" data-tab="stats">
+                    <span class="tab-icon">📊</span>
+                    <span class="tab-text">Statistics</span>
+                </button>
+            </div>
+
+            <!-- Tab Contents -->
+            <div class="tabs-content">
+                <!-- Tokens Tab -->
+                <div class="tab-panel active" id="tab-tokens">
+                    <div class="tokens-header">
+                        <div class="token-legend">
+                            <span class="legend-item noun">Nouns</span>
+                            <span class="legend-item verb">Verbs</span>
+                            <span class="legend-item slang">Slang</span>
+                            <span class="legend-item phrase">Phrases</span>
+                            <span class="legend-item grammar">Grammar</span>
+                        </div>
+                    </div>
+                    <div class="tokens-container" id="tokens-container">
+                        <div class="empty-state">
+                            <div class="empty-icon">🔤</div>
+                            <p>Enter an expression and click "Tokenize" or "Full Analysis" to see tokens</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Parse Tab -->
+                <div class="tab-panel" id="tab-parse">
+                    <div class="parse-status-card" id="parse-status-card">
+                        <div class="status-icon">⏳</div>
+                        <div class="status-message">No expression parsed yet</div>
+                    </div>
+                    <div class="parse-tree-container" id="parse-tree-container">
+                        <div class="empty-state">
+                            <div class="empty-icon">🌳</div>
+                            <p>Parse results will appear here</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grammar Tab -->
+                <div class="tab-panel" id="tab-grammar">
+                    <div class="grammar-container" id="grammar-container">
+                        <div class="grammar-section">
+                            <h3>📜 Production Rules</h3>
+                            <div class="rules-list" id="rules-list">Loading grammar...</div>
+                        </div>
+                        <div class="grammar-section">
+                            <h3>🔤 FIRST Sets</h3>
+                            <div class="sets-list" id="first-sets">Loading...</div>
+                        </div>
+                        <div class="grammar-section">
+                            <h3>🔤 FOLLOW Sets</h3>
+                            <div class="sets-list" id="follow-sets">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Tab -->
+                <div class="tab-panel" id="tab-stats">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">🔢</div>
+                            <div class="stat-value" id="stat-total">0</div>
+                            <div class="stat-label">Total Tokens</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">✨</div>
+                            <div class="stat-value" id="stat-unique">0</div>
+                            <div class="stat-label">Unique Tokens</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">✅</div>
+                            <div class="stat-value" id="stat-accepted">-</div>
+                            <div class="stat-label">Parse Status</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🌍</div>
+                            <div class="stat-value" id="stat-languages">-</div>
+                            <div class="stat-label">Languages</div>
+                        </div>
+                    </div>
+                    <div class="charts-container">
+                        <div class="chart-card">
+                            <h4>Token Type Distribution</h4>
+                            <canvas id="type-chart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h4>Top Tokens</h4>
+                            <canvas id="frequency-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- History Sidebar -->
+    <aside class="history-sidebar" id="history-sidebar">
+        <div class="sidebar-header">
+            <h3>📜 Analysis History</h3>
+            <button class="close-btn" id="close-history">×</button>
+        </div>
+        <div class="history-actions">
+            <button class="btn btn-small" id="clear-history">Clear All</button>
+        </div>
+        <ul class="history-list" id="history-list">
+            <li class="history-empty">No analysis history yet</li>
+        </ul>
+    </aside>
+
+    <!-- Batch Results Modal -->
+    <div class="modal" id="batch-modal">
+        <div class="modal-content batch-content">
+            <div class="modal-header">
+                <h3>📊 Batch Analysis Results</h3>
+                <button class="close-btn" id="close-batch-modal">×</button>
+            </div>
+            <div class="batch-stats" id="batch-stats">
+                <!-- Populated by JavaScript -->
+            </div>
+            <div class="batch-results" id="batch-results">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Shortcuts Modal -->
+    <div class="modal" id="shortcuts-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⌨️ Keyboard Shortcuts</h3>
+                <button class="close-btn" id="close-shortcuts">×</button>
+            </div>
+            <div class="shortcuts-list">
+                <div class="shortcut-item">
+                    <kbd>Ctrl</kbd> + <kbd>Enter</kbd>
+                    <span>Full Analysis</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Ctrl</kbd> + <kbd>T</kbd>
+                    <span>Tokenize Only</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Ctrl</kbd> + <kbd>P</kbd>
+                    <span>Parse Only</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Ctrl</kbd> + <kbd>D</kbd>
+                    <span>Toggle Dark Mode</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Ctrl</kbd> + <kbd>H</kbd>
+                    <span>Toggle History</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Ctrl</kbd> + <kbd>L</kbd>
+                    <span>Clear Input</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Ctrl</kbd> + <kbd>S</kbd>
+                    <span>Export Results</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Escape</kbd>
+                    <span>Close Modals</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparison Modal -->
+    <div class="modal" id="compare-modal">
+        <div class="modal-content compare-content">
+            <div class="modal-header">
+                <h3>📈 Compare Expressions</h3>
+                <button class="close-btn" id="close-compare">×</button>
+            </div>
+            <div class="compare-container">
+                <div class="compare-side">
+                    <h4>Expression A</h4>
+                    <textarea id="compare-input-a" placeholder="Enter first expression..."></textarea>
+                    <button class="btn btn-primary btn-small" id="compare-analyze-a">Analyze A</button>
+                    <div class="compare-result" id="compare-result-a">
+                        <div class="compare-status">Awaiting analysis</div>
+                        <div class="compare-tokens"></div>
+                        <div class="compare-stats"></div>
+                    </div>
+                </div>
+                <div class="compare-divider">
+                    <span>VS</span>
+                </div>
+                <div class="compare-side">
+                    <h4>Expression B</h4>
+                    <textarea id="compare-input-b" placeholder="Enter second expression..."></textarea>
+                    <button class="btn btn-primary btn-small" id="compare-analyze-b">Analyze B</button>
+                    <div class="compare-result" id="compare-result-b">
+                        <div class="compare-status">Awaiting analysis</div>
+                        <div class="compare-tokens"></div>
+                        <div class="compare-stats"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="compare-summary" id="compare-summary" style="display: none;">
+                <h4>📊 Comparison Summary</h4>
+                <div class="summary-grid" id="summary-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <p>🎓 ICT University - Compiler Construction Project</p>
+            <p class="footer-sub">Yaoundé Multilingual Expression Analyzer © 2024</p>
+        </div>
+    </footer>
+
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+
+</html>

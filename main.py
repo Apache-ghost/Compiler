@@ -12,7 +12,7 @@ Usage:
     python main.py --demo # Demo mode
 """
 
-from typing import Dict
+from typing import Dict, List
 from lexical_analyzer import YaoundeLexer, Token, TokenType
 from syntactic_analyzer import YaoundeGrammar, YaoundeParser
 
@@ -26,11 +26,54 @@ class YaoundeAnalyzer:
         self.grammar = YaoundeGrammar()
         self.parser = YaoundeParser(self.grammar)
     
+    def detect_languages(self, tokens: List[Token]) -> List[str]:
+        """Detect which languages are present in the tokens"""
+        languages = set()
+        
+        for token in tokens:
+            if token.type == TokenType.EOF:
+                continue
+                
+            token_type = token.type.name
+            value = token.value.lower()
+            
+            # French indicators
+            if token_type == 'FRENCH_PHRASE' or value in ['je', 'tu', 'vous', 'nous', 'est', 'sont', 'mal', 'bon', 'bien', 'avec', 'pour', 'c\'est', 'comment', 'gars', 'frère', 'frèrot']:
+                languages.add('French')
+            
+            # Pidgin indicators
+            elif token_type == 'PIDGIN_PHRASE' or value in ['dey', 'na', 'wetin', 'waka', 'comot', 'abeg', 'how far', 'wan', 'fit', 'sabi']:
+                languages.add('Pidgin')
+            
+            # Ewondo indicators
+            elif token_type == 'EWONDO_PHRASE' or value in ['mbokesso', 'ndolo', 'akiba', 'a ye moan']:
+                languages.add('Ewondo')
+            
+            # Fulfulde indicators
+            elif token_type == 'FULFULDE_PHRASE' or value in ['wallahi', 'walahi', 'inshallah', 'allah', 'allah yai']:
+                languages.add('Fulfulde')
+            
+            # English indicators
+            elif value in ['give', 'me', 'you', 'drop', 'come', 'go', 'today', 'bad', 'good', 'network', 'phone', 'campus', 'total']:
+                languages.add('English')
+            
+            # Slang (Franc-Anglais)
+            elif token_type.startswith('SLANG_') or value in ['bros', 'masa', 'mass', 'garrr', 'ekiee', 'weh', 'gars', 'chief', 'sango']:
+                languages.add('Franc-Anglais')
+        
+        if not languages:
+            languages.add('Mixed')
+        
+        return sorted(list(languages))
+    
     def analyze(self, text: str) -> Dict:
         """Complete analysis of text"""
         # Lexical analysis
         tokens = self.lexer.tokenize(text)
         frequency = self.lexer.analyze_frequency(tokens)
+        
+        # Language detection
+        languages = self.detect_languages(tokens)
         
         # Syntactic analysis
         accepted, message, parse_tree = self.parser.parse(tokens)
@@ -39,6 +82,7 @@ class YaoundeAnalyzer:
             'original': text,
             'tokens': tokens,
             'frequency': frequency,
+            'languages_detected': languages,
             'parse_result': message,
             'parse_tree': parse_tree,
             'accepted': accepted
@@ -51,6 +95,10 @@ class YaoundeAnalyzer:
         print("=" * 80)
         print(f"\n📝 Original: {result['original']}")
         print(f"\n{result['parse_result']}")
+        
+        # Show languages detected
+        if 'languages_detected' in result and result['languages_detected']:
+            print(f"\n🌍 Languages Detected: {', '.join(result['languages_detected'])}")
         
         print("\n🔤 TOKENS:")
         for token in result['tokens']:
