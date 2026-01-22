@@ -571,5 +571,4 @@ Question → QuestionWord Statement QUESTION
 
 ---
 
-**This guide explains all the concepts you need to understand and present your compiler construction project!**
 

@@ -1,22 +1,28 @@
-# Yaoundé Urban Communication Lexical & Syntactic Analyzer
-# 🇨🇲 Yaounde Urban Communication Analyzer
+# 🇨🇲 Yaoundé Multilingual Expression Analyzer
 
-A sophisticated compiler for multilingual Cameroonian street language that supports English, French, Pidgin, Fulfulde, Ewondo, and Franc-Anglais.
-This project is a lexical and syntactic analyzer for the vibrant, multilingual street language spoken in Yaoundé, Cameroon. It's a compiler front-end designed to understand expressions that blend English, French, Cameroonian Pidgin, and local dialect words.
+A sophisticated compiler construction project for analyzing informal urban communication in Yaoundé, Cameroon. This project implements a complete lexical and syntactic analyzer that handles code-switching between English, French, Pidgin, Fulfulde, Ewondo, and Franc-Anglais.
 
 ## 🌍 Overview
-The tool can deconstruct sentences, identify parts of speech (like nouns, verbs, and slang), and validate the expression against a formal grammar for Yaoundé urban communication.
 
-This project implements a complete lexical and syntactic analyzer for the rich multilingual expressions commonly used in Yaoundé, Cameroon's capital city. It captures the dynamic code-switching and linguistic creativity found in urban Cameroonian communication.
+This project is a mini-compiler that performs:
+- **Lexical Analysis (Tokenization)**: Breaking expressions into tokens using regular expressions
+- **Syntactic Analysis (Parsing)**: Validating expressions against a Context-Free Grammar (CFG)
+- **Language Detection**: Identifying which languages are present in code-mixed expressions
+- **Statistical Analysis**: Token frequency and pattern analysis
+
 ## ✨ Features
 
+- ✅ **Multilingual Support**: Handles 6 languages/codes (English, French, Pidgin, Fulfulde, Ewondo, Franc-Anglais)
+- ✅ **40+ Token Types**: Comprehensive token recognition for urban communication
+- ✅ **Context-Free Grammar**: Formal grammar rules for Yaoundé expressions
+- ✅ **LL(1) Parsing**: Recursive descent parser with FIRST/FOLLOW sets
+- ✅ **Multiple Interfaces**: Console, Web (Flask), and GUI (Tkinter) options
+- ✅ **Voice Input**: Web interface with voice recognition (browser-based)
+- ✅ **Language Detection**: Automatic detection of languages in expressions
+- ✅ **Real-World Data**: Tested with 50+ collected expressions from Yaoundé
+- ✅ **Comprehensive Testing**: Unit tests, edge cases, and integration tests
+
 ## 🎯 Supported Languages
-- **Multilingual Tokenizer**: Recognizes a wide vocabulary from English, French, Pidgin, Ewondo, and Fulfulde.
-- **Context-Aware Lexer**: Identifies specific urban concepts like transport (`bendskin`, `clando`), money (`mbongo`, `fap`), and places (`carrefour`, `quartier`).
-- **Formal Grammar**: Defines the structure of common street expressions (greetings, requests, negotiations, etc.).
-- **LL(1) Parser**: Validates token sequences against the formal grammar using a predictive parsing table.
-- **Interactive Interface**: A user-friendly command-line menu to perform different types of analysis.
-- **Comprehensive Demos**: Includes a rich set of example sentences to showcase the analyzer's capabilities.
 
 - **English** - Base language
 - **French** - Colonial language
@@ -24,18 +30,107 @@ This project implements a complete lexical and syntactic analyzer for the rich m
 - **Fulfulde** - Northern Cameroon language
 - **Ewondo** - Central region language
 - **Franc-Anglais** - French-English code mixing
+
 ## 📂 Project Structure
 
-### Documentation
-All documentation is organized in the `docs/` directory:
-- **`docs/guides/`** - User guides and how-to documentation
-- **`docs/theory/`** - Educational content and theoretical explanations
-- **`docs/reports/`** - Analysis reports and summaries
-- **`docs/checklists/`** - Project checklists and task lists
+```
+Compiler/
+├── main.py                      # Main analyzer class and CLI interface
+├── lexical_analyzer.py          # Tokenizer (Lexer) with regex patterns
+├── syntactic_analyzer.py        # Grammar definition and Parser
+├── app.py                       # Flask web application
+├── gui_interface.py             # Tkinter GUI interface
+├── demo_console.py              # Enhanced console demo for presentations
+├── test_analyzer.py             # Comprehensive unit tests
+├── test_collected_data_comprehensive.py  # Test all collected expressions
+├── analyze_collected_data.py    # Analyze expressions by grammar rules
+├── generate_edge_case_report.py # Edge case testing and reporting
+├── collected_data.txt           # Real-world collected expressions
+├── docs/                        # All documentation (organized)
+│   ├── guides/                  # User guides
+│   ├── theory/                  # Educational content
+│   ├── reports/                 # Analysis reports
+│   └── checklists/              # Project checklists
+├── static/                      # Web interface assets
+│   ├── css/
+│   ├── js/
+│   └── img/
+└── templates/                   # Flask templates
+```
 
-See `docs/README.md` for complete documentation index.
+## 🚀 Quick Start
 
-### Source Code
+### Console Terminal Demo (Recommended for Presentations)
+
+```bash
+cd Compiler
+python demo_console.py
+```
+
+This runs a complete step-by-step demo showing:
+- Lexical Analysis (Tokenization)
+- Language Detection
+- Syntactic Analysis (Parsing)
+- Statistics
+
+**Other console options:**
+```bash
+python demo_console.py interactive  # Interactive mode
+python demo_console.py quick        # Quick results
+python main.py                     # Original menu interface
+```
+
+### Web Interface (Flask)
+
+```bash
+cd Compiler
+python app.py
+```
+
+Then open your browser to: `http://localhost:5000`
+
+**Features:**
+- Real-time analysis
+- Voice input support
+- Interactive tokenization
+- Parse tree visualization
+- Language detection
+- Statistics and charts
+- Export to PDF/TXT
+
+### GUI Interface (Tkinter)
+
+```bash
+cd Compiler
+python gui_interface.py
+```
+
+**Features:**
+- Interactive expression input
+- Real-time tokenization display
+- Parse result visualization
+- Statistics and frequency analysis
+- Grammar information
+- Example expressions
+
+## 📊 Example Expressions
+
+### Simple Requests
+- `"bros drop me for Total"` - Transport request
+- `"give me 500 francs"` - Money request
+
+### Complaints
+- `"masa network dey bad today"` - Tech complaint (English + Pidgin + Franc-Anglais)
+- `"ICT est mal scia gars"` - French-style complaint
+- `"walahi light don comot direct"` - Fulfulde + Pidgin complaint
+
+### Questions
+- `"je wanda how far ?"` - Franc-Anglais question
+- `"Bros, you sabi the road for Total?"` - Pidgin question
+
+### Negotiations
+- `"give me 500 francs"` - Money negotiation
+- `"Massa, give me 200 francs change"` - Slang + negotiation
 
 ## 🏗️ Architecture
 
@@ -43,23 +138,70 @@ See `docs/README.md` for complete documentation index.
 
 1. **Lexical Analyzer (`YaoundeLexer`)**
    - Tokenizes multilingual urban expressions
-   - Recognizes 40+ token types
+   - Recognizes 40+ token types using regular expressions
    - Handles code-switching seamlessly
+   - Token frequency analysis
 
 2. **Grammar Engine (`YaoundeGrammar`)**
    - Context-Free Grammar for street expressions
    - LL(1) parsing table generation
    - FIRST/FOLLOW set computation
+   - Grammar rule definitions
 
 3. **Syntactic Parser (`YaoundeParser`)**
-   - Recursive descent parser
+   - Recursive descent parser (LL(1)-like)
    - Real-time syntax validation
    - Parse tree generation
+   - Flexible parsing for informal language
 
 4. **Complete Analyzer (`YaoundeAnalyzer`)**
    - End-to-end text analysis
+   - Language detection
    - Frequency analysis
    - Pretty-printed results
+
+## 📚 Documentation
+
+All documentation is organized in the `docs/` directory:
+
+- **`docs/guides/`** - User guides and how-to documentation
+  - Console demo guide
+  - Web interface testing
+  - Voice input guide
+  - Quick start guides
+
+- **`docs/theory/`** - Educational content
+  - Complete educational guide (LL(1), SLR(1), regex, tokenization, etc.)
+  - Project explanation guide
+  - Grammar transformations
+
+- **`docs/reports/`** - Analysis reports
+  - Expression acceptance analysis
+  - Grammar analysis
+  - Features summary
+  - Completion summary
+
+- **`docs/checklists/`** - Project management
+  - Final submission checklist
+
+See `docs/README.md` for complete documentation index.
+
+## 🔬 Grammar Structure
+
+```
+S → Statement
+Statement → Greeting | Request | Question | Complaint | Negotiation
+
+Greeting → SLANG_RESPONSE [TimePhrase] [StatePhrase]
+Request → VERB_GIVE PRONOUN TransportRequest
+        | VERB_MOVEMENT LocationPhrase
+        | VERB_MOVEMENT PRONOUN LocationPhrase
+Complaint → ComplaintPhrase [SLANG_EXCLAIM] [TIME]
+Question → QuestionWord Statement QUESTION
+Negotiation → PricePhrase | VERB_GIVE PRONOUN NUMBER NOUN_MONEY
+```
+
+See `docs/theory/grammar_transformations.md` for detailed grammar documentation.
 
 ## 📊 Token Categories
 
@@ -72,207 +214,123 @@ See `docs/README.md` for complete documentation index.
 - **Technology**: call, airtime, WiFi, network, MTN
 
 ### Linguistic Elements
-- **Pidgin Phrases**: na so, no be, i don, wetin
-- **French Phrases**: c'est comment, ça va, tu vois
+- **Pidgin Phrases**: na so, no be, i don, wetin, dey, wan, fit
+- **French Phrases**: c'est comment, ça va, tu vois, je, est, mal
 - **Ewondo Phrases**: a ye moan, mbokesso, ndolo
 - **Fulfulde Phrases**: allah yai, wallahi, inshallah
-- **Slang & Exclamations**: ehn, garrr, ekiee, weh
+- **Slang & Exclamations**: ehn, garrr, ekiee, weh, bros, masa
 
-## 🔬 Grammar Structure
+## 🧪 Testing
 
-```
-S → Statement
-Statement → Greeting | Request | Question | Complaint | Negotiation
-Greeting → SLANG_RESPONSE TimePhrase? StatePhrase?
-Request → VERB_GIVE PRONOUN TransportRequest | VERB_MOVEMENT LocationPhrase
-Question → QuestionWord Statement QUESTION
-compiler/
-├── main.py                 # Main entry point with interactive menu
-├── lexical_analyzer.py     # Tokenizer (Lexer) for the language
-├── syntactic_analyzer.py   # Grammar definition and Parser
-├── test_analyzer.py        # Unit tests for the project
-└── README.md               # This file
-```
-
-## 🚀 Usage
-
-### Console Terminal Demo (Perfect for Presentations!)
+### Run All Tests
 ```bash
-cd Compiler
-python demo_console.py
+python test_analyzer.py
 ```
-This runs a complete step-by-step demo showing:
-- Lexical Analysis (Tokenization)
-- Language Detection
-- Syntactic Analysis (Parsing)
-- Statistics
 
-**Other console options:**
+### Test Collected Data
 ```bash
-python demo_console.py interactive  # Interactive mode
-python demo_console.py quick        # Quick results
-python main.py                     # Original menu
+python test_collected_data_comprehensive.py
 ```
 
-### Graphical User Interface (Recommended for Presentations)
+### Analyze Grammar Rules
 ```bash
-python gui_interface.py
-# or
-python main.py --gui
+python analyze_collected_data.py
 ```
 
-The GUI provides:
-- 📝 Interactive expression input
-- 🔤 Real-time tokenization display
-- 🌳 Parse result visualization
-- 📊 Statistics and frequency analysis
-- 📚 Grammar information
-- 💡 Example expressions to try
+### Generate Edge Case Report
+```bash
+python generate_edge_case_report.py
+```
 
-### Command-Line Interface
-- **`lexical_analyzer.py`**: Contains `YaoundeLexer`, which uses regular expressions to convert raw text into a stream of `Token`s.
-- **`syntactic_analyzer.py`**: Contains `YaoundeGrammar` (which defines the language's structure) and `YaoundeParser` (which checks if the tokens form a valid sentence).
-- **`main.py`**: The user-facing application. It orchestrates the lexer and parser and provides a menu for users to interact with the system.
-- **`test_analyzer.py`**: Contains unit tests to ensure the reliability and correctness of the lexer and parser.
+## 🔧 Technical Implementation
+
+- **Language**: Python 3.7+
+- **Parsing Method**: LL(1) recursive descent (flexible for informal language)
+- **Pattern Matching**: Regular expressions (regex)
+- **Data Structures**: Enums, dataclasses, sets, dictionaries
+- **Analysis**: Frequency counting, tree generation, language detection
+- **Web Framework**: Flask
+- **GUI Framework**: Tkinter
+- **Voice Recognition**: Web Speech API (browser-based)
+
+## 📝 Usage Examples
+
+### Python API
 
 ```python
 from main import YaoundeAnalyzer
-## 🚀 Getting Started
 
 analyzer = YaoundeAnalyzer()
 result = analyzer.analyze("bros drop me for Total")
+
+print(f"Accepted: {result['accepted']}")
+print(f"Languages: {result['languages_detected']}")
+print(f"Tokens: {len(result['tokens'])}")
 analyzer.print_analysis(result)
 ```
-### Prerequisites
 
-- Python 3.6+
+### Command Line
 
-## 📝 Example Expressions
-No external libraries are required to run the main application.
+```bash
+# Interactive menu
+python main.py
 
-- "bros drop me for Total" - Transport request
-- "masa network dey bad today" - Tech complaint
-- "give me 500 francs" - Money request
-- "je wanda how far ?" - Franc-Anglais question
-- "walahi light don comot direct" - Fulfulde-Pidgin complaint
-### Installation
+# Console demo
+python demo_console.py
 
-### Franc-Anglais Test Block (Taxi, Student, Quartier)
-1. Clone the repository or download the source code.
-2. Navigate to the `compiler` directory.
-
-The following 50 sentences are authentic Franc-Anglais expressions for analysis:
-### Running the Analyzer
-
-1. Bros, drop me for carrefour.
-2. Je go campus now, you dey come?
-3. Massa, give me 200 francs change.
-4. You fit show me ICT junction?
-5. Je wanda how far?
-6. Bros, you sabi the road for Total?
-7. I dey go marché, you fit carry me?
-8. C’est comment, network dey bad today.
-9. Bros, na so life dey for quartier.
-10. Je wan chop ndolé, you get?
-11. You fit wait small, I dey come.
-12. Bros, na taxi or clando?
-13. Je go school, drop me for gate.
-14. You fit give me airtime?
-15. Bros, na bendskin dey pass here?
-16. Je wan buy fufu, where e dey?
-17. Bros, you sabi patron for this place?
-18. Je wan go campus, how much?
-19. Bros, na moto or taxi?
-20. Je wan call my friend, phone no dey.
-21. Bros, you fit help me with kop?
-22. Je wan go ICT, you dey go?
-23. Bros, na bendskin-man dey for corner.
-24. Je wan see my guy for marché.
-25. Bros, na so e dey for Yaoundé.
-26. Je wan drop for carrefour, how far?
-27. Bros, na garri you dey chop?
-28. Je wan go Total, you fit carry me?
-29. Bros, na so e dey, no wahala.
-30. Je wan buy airtime, you get?
-31. Bros, na campus you dey go?
-32. Je wan see my patron, you fit show me?
-33. Bros, na so e dey, ehn!
-34. Je wan go ICT, you fit drop me?
-35. Bros, na taxi dey pass here?
-36. Je wan buy eru, where e dey?
-37. Bros, na so e dey for quartier.
-38. Je wan go marché, you fit carry me?
-39. Bros, na bendskin dey for road?
-40. Je wan call my guy, phone dey bad.
-41. Bros, na so e dey, garrr!
-42. Je wan buy ndolé, you get?
-43. Bros, na campus you dey go?
-44. Je wan see my friend for Total.
-45. Bros, na so e dey, weh!
-46. Je wan go carrefour, you fit drop me?
-47. Bros, na taxi or moto?
-48. Je wan buy airtime, you fit help me?
-49. Bros, na so e dey, ekiee!
-50. Je wan go marché, you dey go?
-To start the interactive menu, run `main.py`:
+# Web interface
+python app.py
+```
 
 ## 🎓 Academic Features
-```bash
-python main.py
-```
 
 - **Token Frequency Analysis**: Statistical breakdown of expression components
 - **Parse Tree Generation**: Visual syntax structure
 - **Grammar Validation**: Real-time syntax checking
 - **Multilingual Support**: Seamless code-switching recognition
-You will be presented with a menu of options:
+- **FIRST/FOLLOW Sets**: LL(1) parsing table computation
+- **Grammar Transformations**: Left recursion removal, left factoring
+- **Edge Case Testing**: Comprehensive boundary condition testing
 
-## 🔧 Technical Implementation
-1.  **Analyze expressions (full analysis)**: Performs both lexical and syntactic analysis and shows a detailed report.
-2.  **Tokenize only (lexical analysis)**: Shows the tokens generated from an expression.
-3.  **Parse only (syntactic analysis)**: Shows the result of the grammar validation.
-4.  **Show grammar information**: Displays details about the grammar rules.
-5.  **Run demo with examples**: Runs a series of predefined test cases.
+## 📈 Project Requirements Coverage
 
-- **Language**: Python 3.7+
-- **Parsing Method**: LL(1) recursive descent
-- **Pattern Matching**: Regular expressions
-- **Data Structures**: Enums, dataclasses, sets
-- **Analysis**: Frequency counting, tree generation
-### Running the Demo
-
-## 📈 Project Structure
-To run the non-interactive demo directly from the command line:
-
-```bash
-python main.py --demo
-```
-compiler/
-├── main.py              # Complete implementation
-├── README.md            # This documentation
-├── PROJECT_INDEX.md     # Detailed project index
-├── API_REFERENCE.md     # API documentation
-└── EXAMPLES.md          # Usage examples
-```
+✅ **Data Collection**: 50+ real-world expressions collected and categorized  
+✅ **Lexical Analysis**: Custom lexical specification with regular expressions  
+✅ **Syntactic Analysis**: Context-Free Grammar with LL(1) parsing  
+✅ **Grammar Transformations**: Left recursion removal, left factoring documented  
+✅ **FIRST/FOLLOW Sets**: Computed and used in parsing  
+✅ **Implementation**: LL(1)-like recursive descent parser  
+✅ **Testing**: Grammar tested with collected sentences  
+✅ **Acceptance/Rejection**: Shows which sentences are accepted/rejected  
+✅ **Interfaces**: Console, Web, and GUI interfaces  
+✅ **Documentation**: Comprehensive documentation (25+ pages of content)  
 
 ## 🤝 Contributing
-### Running Tests
 
 This project captures the linguistic diversity of Cameroon. Contributions for additional languages, expressions, or grammar rules are welcome.
-To ensure everything is working as expected, you can run the test suite:
 
 ## 📚 Research Applications
-```bash
-python test_analyzer.py
-```
 
 - Computational linguistics research
 - African language technology
 - Code-switching analysis
 - Urban sociolinguistics
 - Natural language processing for African languages
+- Compiler construction education
 
 ## 📄 License
 
 Academic research project - Open source educational use.
-This will execute all the unit tests for the lexer, parser, and grammar.
+
+## 🔗 Quick Links
+
+- **Documentation**: `docs/README.md`
+- **Educational Guide**: `docs/theory/COMPLETE_EDUCATIONAL_GUIDE.md`
+- **Project Explanation**: `docs/theory/PROJECT_EXPLANATION_GUIDE.md`
+- **Console Demo Guide**: `docs/guides/CONSOLE_DEMO_GUIDE.md`
+- **Web Interface Guide**: `docs/guides/TEST_WEB_INTERFACE.md`
+
+---
+
+**ICT University - Compiler Construction Project**  
+**Yaoundé Multilingual Expression Analyzer** 🇨🇲

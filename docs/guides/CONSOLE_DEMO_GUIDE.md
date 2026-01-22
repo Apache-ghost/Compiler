@@ -263,7 +263,3 @@ python analyze_collected_data.py
 ✅ **Presentable**: Perfect for presentations  
 ✅ **Educational**: Shows compiler phases clearly  
 
----
-
-**The console terminal is perfect for demonstrating your compiler project!** 🎓
-
